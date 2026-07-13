@@ -28,6 +28,7 @@
                     <div class="d-inline-flex bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill px-3 py-2 fw-bold text-uppercase small mb-3" style="letter-spacing: .1em;">🏅 Karnival Sukan BTMKN 2026</div>
                     <h1 class="display-5 fw-bold mb-2">Pendaftaran Peserta</h1>
                     <p class="text-white-50 fs-5 mb-0">Pilih rumah, nama peserta dan acara yang ingin disertai.</p>
+                    <div class="mt-3"><span class="badge rounded-pill {{ $registrationIsOpen ? 'text-bg-success' : 'text-bg-warning' }} px-3 py-2">{{ $registrationIsOpen ? 'Pendaftaran dibuka' : 'Dibuka 14 Julai 2026' }}</span></div>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="{{ route('public-participants.index') }}" class="btn btn-outline-light rounded-pill">Senarai Peserta</a>
@@ -55,8 +56,16 @@
                     </div>
                 @endif
 
+                @unless ($registrationIsOpen)
+                    <div class="alert alert-warning rounded-4 mb-4">
+                        <div class="fw-bold">Pendaftaran belum dibuka</div>
+                        <div>Pendaftaran acara boleh dibuat mulai <strong>14 Julai 2026</strong>.</div>
+                    </div>
+                @endunless
+
                 <form method="post" action="{{ route('public-registration.store') }}">
                     @csrf
+                    <fieldset @disabled(! $registrationIsOpen)>
                     <div class="mb-5">
                         <div class="text-primary fw-bold small text-uppercase mb-1">Langkah 1</div>
                         <h2 class="h4 fw-bold mb-3">Pilih Peserta</h2>
@@ -107,6 +116,7 @@
                         <div class="small text-secondary">Pastikan semua maklumat adalah tepat sebelum dihantar.</div>
                         <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">Hantar Pendaftaran</button>
                     </div>
+                    </fieldset>
                 </form>
             </div>
         </div>

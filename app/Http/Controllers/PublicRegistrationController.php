@@ -26,6 +26,8 @@ class PublicRegistrationController extends Controller
             'sports' => Sport::query()->get()
                 ->sortBy(fn (Sport $sport) => $this->scoreboardService->eventOrder($sport->name))
                 ->values(),
+            'registrationOpensAt' => $this->registrationService->opensAt(),
+            'registrationIsOpen' => $this->registrationService->isOpen(),
         ]);
     }
 

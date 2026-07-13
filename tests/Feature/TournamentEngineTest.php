@@ -17,6 +17,7 @@ use App\Services\LeagueFixtureService;
 use App\Services\LeagueStandingService;
 use App\Services\MatchResultService;
 use App\Services\ScoreboardService;
+use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
@@ -442,6 +443,7 @@ class TournamentEngineTest extends TestCase
 
     public function test_a_participant_can_register_for_events_from_the_public_page(): void
     {
+        $this->travelTo(CarbonImmutable::parse('2026-07-14 08:00:00', 'Asia/Kuala_Lumpur'));
         $this->seed(DatabaseSeeder::class);
         $house = House::query()->where('name', 'Merah')->firstOrFail();
         $fifa = Sport::query()->where('name', 'FIFA')->firstOrFail();
@@ -472,6 +474,33 @@ class TournamentEngineTest extends TestCase
             [$fifa->id, $dart->id],
             $participant->sports()->pluck('sports.id')->all(),
         );
+    }
+
+    public function test_public_event_registration_is_closed_before_14_july_2026(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-07-13 23:59:59', 'Asia/Kuala_Lumpur'));
+        $this->seed(DatabaseSeeder::class);
+        $house = House::query()->firstOrFail();
+        $sport = Sport::query()->where('name', 'FIFA')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => $house->id,
+            'employee_no' => 'BEFORE-OPENING',
+            'name' => 'Peserta Awal',
+            'gender' => Gender::Male,
+        ]);
+
+        $this->get(route('public-registration.create'))
+            ->assertOk()
+            ->assertSee('Pendaftaran belum dibuka')
+            ->assertSee('Dibuka 14 Julai 2026');
+
+        $this->post(route('public-registration.store'), [
+            'house_id' => $house->id,
+            'participant_id' => $participant->id,
+            'sport_ids' => [$sport->id],
+        ])->assertSessionHasErrors('sport_ids');
+
+        $this->assertDatabaseCount('sport_registrations', 0);
     }
 
     public function test_the_public_participant_listing_hides_employee_numbers(): void

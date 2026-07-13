@@ -116,7 +116,7 @@
                             </th>
                         @endforeach
                         <th class="text-center">Jumlah Acara</th>
-                        <th class="text-end pe-4">Status</th>
+                        <th class="text-end text-nowrap pe-4" style="min-width: 175px;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,8 +143,8 @@
                             <td class="text-center fw-bold">
                                 {{ $event['complete'] ? $event['points']->sum() : '—' }}
                             </td>
-                            <td class="text-end pe-4">
-                                <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                            <td class="text-end text-nowrap pe-4" style="min-width: 175px;">
+                                <span class="badge rounded-pill text-nowrap px-3 py-2 {{ $statusClass }}">{{ $statusLabel }}</span>
                             </td>
                         </tr>
                     @endforeach

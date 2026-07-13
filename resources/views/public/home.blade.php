@@ -65,7 +65,7 @@
 
     @php
         $portals = [
-            ['title' => 'Daftar Acara', 'description' => 'Pilih nama peserta dan acara yang ingin disertai.', 'icon' => '✍️', 'route' => 'public-registration.create', 'color' => '#f97316', 'soft' => '#ffedd5', 'dark' => '#9a3412'],
+            ['title' => 'Daftar Acara', 'description' => 'Pendaftaran dibuka mulai 14 Julai 2026.', 'icon' => '✍️', 'route' => 'public-registration.create', 'color' => '#f97316', 'soft' => '#ffedd5', 'dark' => '#9a3412'],
             ['title' => 'Senarai Peserta', 'description' => 'Lihat peserta yang bertanding dalam setiap acara.', 'icon' => '👥', 'route' => 'public-participants.index', 'color' => '#16a34a', 'soft' => '#dcfce7', 'dark' => '#166534'],
             ['title' => 'Keputusan Live', 'description' => 'Ikuti kedudukan, mata dan bracket secara langsung.', 'icon' => '⚡', 'route' => 'live.index', 'color' => '#dc2626', 'soft' => '#fee2e2', 'dark' => '#991b1b'],
             ['title' => 'Jadual', 'description' => 'Semak tarikh dan lokasi bagi setiap acara.', 'icon' => '📅', 'route' => 'schedule.index', 'color' => '#2563eb', 'soft' => '#dbeafe', 'dark' => '#1e40af'],
