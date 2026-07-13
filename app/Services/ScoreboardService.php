@@ -12,6 +12,16 @@ use Illuminate\Support\Collection;
 
 class ScoreboardService
 {
+    private const EVENT_ORDER = [
+        'Congkak' => 1,
+        'FIFA' => 2,
+        'Tekken' => 3,
+        'Dart' => 4,
+        'Carrom' => 5,
+        'Bowling' => 6,
+        'Pickleball' => 7,
+    ];
+
     public function __construct(
         private readonly HousePointService $housePointService,
         private readonly BowlingService $bowlingService,
@@ -109,7 +119,12 @@ class ScoreboardService
             ]);
         }
 
-        return $events->values();
+        return $events
+            ->sortBy(fn (array $event) => [
+                self::EVENT_ORDER[$event['event']] ?? PHP_INT_MAX,
+                $event['category'] === 'Lelaki' ? 1 : 2,
+            ])
+            ->values();
     }
 
     private function winsByHouse(): array
