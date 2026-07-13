@@ -230,6 +230,22 @@ class TournamentEngineTest extends TestCase
             ->assertDontSee('Pilih pemenang');
     }
 
+    public function test_the_updated_dashboard_shows_live_operations_and_event_progress(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('Pusat Kawalan Karnival')
+            ->assertSee('Kedudukan Rumah')
+            ->assertSee('Kemajuan Keseluruhan')
+            ->assertSee('Kemajuan Setiap Acara')
+            ->assertSee('Tindakan Pantas')
+            ->assertSee('Paparan Awam Live')
+            ->assertDontSee('Lapisan sistem pertama');
+    }
+
     public function test_bowling_awards_position_points_by_total_pins_after_two_games(): void
     {
         $this->seed(DatabaseSeeder::class);
