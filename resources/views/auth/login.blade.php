@@ -53,7 +53,6 @@
                 </div>
                 <button type="submit" class="btn btn-dark btn-lg w-100">Log Masuk</button>
                 <a href="{{ route('live.index') }}" class="btn btn-outline-primary btn-lg w-100">Lihat Keputusan Langsung</a>
-                <div class="text-secondary small">Admin benih lalai: admin@sukanbtmkn.test / password</div>
             </form>
         </div>
     </div>
