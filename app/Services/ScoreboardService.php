@@ -7,7 +7,6 @@ use App\Enums\MatchStage;
 use App\Enums\SportType;
 use App\Models\House;
 use App\Models\LeagueMatch;
-use App\Models\PointSetting;
 use App\Models\Sport;
 use Illuminate\Support\Collection;
 
@@ -49,7 +48,7 @@ class ScoreboardService
     public function eventBreakdown(): Collection
     {
         $houses = House::query()->orderBy('name')->get();
-        $settings = PointSetting::query()->pluck('points', 'position');
+        $settings = $this->housePointService->positionPoints();
         $matches = LeagueMatch::query()
             ->with('result')
             ->whereIn('stage', [MatchStage::Final, MatchStage::ThirdPlace])

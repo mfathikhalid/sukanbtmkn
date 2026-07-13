@@ -16,4 +16,18 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_cloudflare_forwarded_https_is_used_for_generated_form_urls(): void
+    {
+        $response = $this
+            ->withHeaders([
+                'X-Forwarded-Proto' => 'https',
+                'X-Forwarded-Host' => 'sukan.example.com',
+            ])
+            ->get('http://localhost/login');
+
+        $response
+            ->assertOk()
+            ->assertSee('action="https://sukan.example.com/login"', false);
+    }
 }

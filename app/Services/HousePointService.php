@@ -12,6 +12,8 @@ use Illuminate\Support\Collection;
 
 class HousePointService
 {
+    private const DEFAULT_POSITION_POINTS = [1 => 10, 2 => 7, 3 => 5, 4 => 3];
+
     public function __construct(private readonly BowlingService $bowlingService) {}
 
     public function pointsByHouse(): Collection
@@ -32,7 +34,7 @@ class HousePointService
     public function leaguePointsByHouse(): array
     {
         $points = [];
-        $settings = PointSetting::query()->pluck('points', 'position');
+        $settings = $this->positionPoints();
         $tournaments = LeagueMatch::query()
             ->with(['result', 'sport'])
             ->whereHas('sport', fn ($query) => $query->where('type', SportType::League))
@@ -76,7 +78,7 @@ class HousePointService
             return [];
         }
 
-        $settings = PointSetting::query()->pluck('points', 'position');
+        $settings = $this->positionPoints();
         $points = [];
         $previousTotal = null;
         $position = 0;
@@ -100,5 +102,15 @@ class HousePointService
         return $match->result->winner_house_id === $match->home_house_id
             ? $match->away_house_id
             : $match->home_house_id;
+    }
+
+    public function positionPoints(): Collection
+    {
+        return collect(self::DEFAULT_POSITION_POINTS)->replace(
+            PointSetting::query()
+                ->whereIn('position', array_keys(self::DEFAULT_POSITION_POINTS))
+                ->pluck('points', 'position')
+                ->map(fn ($points) => (int) $points),
+        );
     }
 }
