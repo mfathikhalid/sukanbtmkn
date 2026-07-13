@@ -100,12 +100,24 @@ class BowlingService
 
     public function isComplete(): bool
     {
+        return $this->status() === 'complete';
+    }
+
+    public function status(): string
+    {
         $registrations = Participant::query()
             ->whereHas('sports', fn ($query) => $query->where('type', 'bowling'))
             ->withCount(['bowlingScores as bowling_games_count'])
             ->get();
 
-        return $registrations->isNotEmpty()
-            && $registrations->every(fn (Participant $participant) => $participant->bowling_games_count === 2);
+        if ($registrations->isEmpty() || $registrations->sum('bowling_games_count') === 0) {
+            return 'not_started';
+        }
+
+        if ($registrations->every(fn (Participant $participant) => $participant->bowling_games_count === 2)) {
+            return 'complete';
+        }
+
+        return 'ongoing';
     }
 }

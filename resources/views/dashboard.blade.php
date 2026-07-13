@@ -105,12 +105,19 @@
             </div>
             <div class="row g-3">
                 @foreach ($eventProgress as $event)
+                    @php
+                        [$eventStatusClass, $eventStatusLabel] = match ($event['status']) {
+                            'complete' => ['text-bg-success', 'Selesai'],
+                            'ongoing' => ['text-bg-warning', 'Sedang berlangsung'],
+                            default => ['text-bg-secondary', 'Belum bermula'],
+                        };
+                    @endphp
                     <div class="col-md-6 col-xl-4">
                         <a href="{{ route($eventRoutes[$event['sport']->name]) }}" class="text-decoration-none text-dark">
                             <div class="border rounded-4 p-3 h-100">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div><div class="fw-bold">{{ $event['sport']->name }}</div><div class="small text-secondary">{{ $event['completed'] }} / {{ $event['total'] }} selesai</div></div>
-                                    <span class="badge {{ $event['complete'] ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $event['complete'] ? 'Lengkap' : $event['percentage'].'%' }}</span>
+                                    <span class="badge {{ $eventStatusClass }}">{{ $eventStatusLabel }}</span>
                                 </div>
                                 <div class="progress" style="height: .45rem;"><div class="progress-bar {{ $event['complete'] ? 'bg-success' : 'bg-primary' }}" style="width: {{ $event['percentage'] }}%"></div></div>
                             </div>

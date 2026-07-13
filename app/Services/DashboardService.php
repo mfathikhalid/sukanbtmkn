@@ -57,13 +57,15 @@ class DashboardService
             if ($sport->type === SportType::Bowling) {
                 $total = $bowlingPlayers * 2;
                 $completed = min($bowlingScores, $total);
+                $status = $this->bowlingService->status();
 
                 return [
                     'sport' => $sport,
                     'completed' => $completed,
                     'total' => $total,
                     'percentage' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
-                    'complete' => $this->bowlingService->isComplete(),
+                    'complete' => $status === 'complete',
+                    'status' => $status,
                 ];
             }
 
@@ -76,6 +78,9 @@ class DashboardService
                     : 0,
                 'complete' => $sport->matches_count > 0
                     && $sport->completed_matches_count === $sport->matches_count,
+                'status' => $sport->completed_matches_count === 0
+                    ? 'not_started'
+                    : ($sport->completed_matches_count === $sport->matches_count ? 'complete' : 'ongoing'),
             ];
         });
     }

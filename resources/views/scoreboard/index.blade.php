@@ -121,6 +121,13 @@
                 </thead>
                 <tbody>
                     @foreach ($eventBreakdown as $event)
+                        @php
+                            [$statusClass, $statusLabel] = match ($event['status']) {
+                                'complete' => ['text-bg-success', 'Selesai'],
+                                'ongoing' => ['text-bg-warning', 'Sedang berlangsung'],
+                                default => ['text-bg-secondary', 'Belum bermula'],
+                            };
+                        @endphp
                         <tr>
                             <td class="ps-4 fw-semibold">{{ $event['event'] }}</td>
                             <td class="text-secondary">{{ $event['category'] }}</td>
@@ -137,9 +144,7 @@
                                 {{ $event['complete'] ? $event['points']->sum() : '—' }}
                             </td>
                             <td class="text-end pe-4">
-                                <span class="badge {{ $event['complete'] ? 'text-bg-success' : 'text-bg-secondary' }}">
-                                    {{ $event['complete'] ? 'Selesai' : 'Belum selesai' }}
-                                </span>
+                                <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                             </td>
                         </tr>
                     @endforeach

@@ -22,24 +22,31 @@ class PublicLiveController extends Controller
 
     public function __invoke(): View
     {
+        $eventBreakdown = $this->scoreboardService->eventBreakdown();
+        $eventStatuses = $eventBreakdown->keyBy(
+            fn (array $event) => $event['event'].'|'.$event['category']
+        );
+
         $events = Sport::query()
             ->where('type', SportType::League)
             ->orderBy('name')
             ->get()
-            ->flatMap(function (Sport $sport): array {
+            ->flatMap(function (Sport $sport) use ($eventStatuses): array {
                 return collect([
                     Gender::Male->value => $sport->male_quota,
                     Gender::Female->value => $sport->female_quota,
                 ])->filter(fn (int $quota) => $quota > 0)
                     ->keys()
-                    ->map(function (string $gender) use ($sport): array {
+                    ->map(function (string $gender) use ($sport, $eventStatuses): array {
                         $genderEnum = Gender::from($gender);
+                        $category = $genderEnum === Gender::Male ? 'Lelaki' : 'Perempuan';
 
                         return [
                             'type' => 'tournament',
                             'sport' => $sport,
                             'gender' => $genderEnum,
-                            'category' => $genderEnum === Gender::Male ? 'Lelaki' : 'Perempuan',
+                            'category' => $category,
+                            'status' => $eventStatuses->get($sport->name.'|'.$category)['status'] ?? 'not_started',
                             'standings' => $this->standingService->calculate($sport, $genderEnum),
                             ...$this->bracketService->for($sport, $genderEnum),
                         ];
@@ -49,13 +56,15 @@ class PublicLiveController extends Controller
         $bowlingSport = Sport::query()->where('type', SportType::Bowling)->first();
 
         if ($bowlingSport) {
+            $bowlingStatus = $eventStatuses->get($bowlingSport->name.'|Keseluruhan')['status'] ?? 'not_started';
             $events->push([
                 'type' => 'bowling',
                 'sport' => $bowlingSport,
                 'category' => 'Keseluruhan',
                 'playerTotals' => $this->bowlingService->playerTotals()->sortByDesc('total')->values(),
                 'houseTotals' => $this->bowlingService->houseTotals(),
-                'complete' => $this->bowlingService->isComplete(),
+                'complete' => $bowlingStatus === 'complete',
+                'status' => $bowlingStatus,
             ]);
         }
 
@@ -68,7 +77,7 @@ class PublicLiveController extends Controller
 
         return view('public.live', [
             'standings' => $this->scoreboardService->houseStandings(),
-            'eventBreakdown' => $this->scoreboardService->eventBreakdown(),
+            'eventBreakdown' => $eventBreakdown,
             'events' => $events,
         ]);
     }

@@ -102,7 +102,14 @@
                         <thead class="table-light"><tr><th class="ps-4">Acara</th><th>Kategori</th>@foreach ($standings as $row)<th class="text-center">{{ $row['house']->name }}</th>@endforeach<th class="pe-4 text-end">Status</th></tr></thead>
                         <tbody>
                             @foreach ($eventBreakdown as $event)
-                                <tr><td class="ps-4 fw-semibold">{{ $event['event'] }}</td><td>{{ $event['category'] }}</td>@foreach ($standings as $row)<td class="text-center fw-bold">{{ $event['complete'] ? ($event['points'][$row['house']->id] ?? 0) : '—' }}</td>@endforeach<td class="pe-4 text-end"><span class="badge {{ $event['complete'] ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $event['complete'] ? 'Selesai' : 'Belum selesai' }}</span></td></tr>
+                                @php
+                                    [$breakdownStatusClass, $breakdownStatusLabel] = match ($event['status']) {
+                                        'complete' => ['text-bg-success', 'Selesai'],
+                                        'ongoing' => ['text-bg-warning', 'Sedang berlangsung'],
+                                        default => ['text-bg-secondary', 'Belum bermula'],
+                                    };
+                                @endphp
+                                <tr><td class="ps-4 fw-semibold">{{ $event['event'] }}</td><td>{{ $event['category'] }}</td>@foreach ($standings as $row)<td class="text-center fw-bold">{{ $event['complete'] ? ($event['points'][$row['house']->id] ?? 0) : '—' }}</td>@endforeach<td class="pe-4 text-end"><span class="badge {{ $breakdownStatusClass }}">{{ $breakdownStatusLabel }}</span></td></tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -115,6 +122,11 @@
                 <div class="d-grid gap-4">
                     @foreach ($events as $event)
                         @php
+                            [$eventStatusClass, $eventStatusLabel] = match ($event['status']) {
+                                'complete' => ['text-bg-success', 'Selesai'],
+                                'ongoing' => ['text-bg-warning', 'Sedang berlangsung'],
+                                default => ['text-bg-secondary', 'Belum bermula'],
+                            };
                             [$eventIcon, $eventColor, $eventSoft, $eventDark] = match ($event['sport']->name) {
                                 'Congkak' => ['●', '#f97316', '#ffedd5', '#9a3412'],
                                 'FIFA', 'Tekken' => ['🎮', '#2563eb', '#dbeafe', '#1e40af'],
@@ -126,14 +138,11 @@
                             };
                         @endphp
                         <article class="event-card card border-0 shadow-sm rounded-4" style="--event-color: {{ $eventColor }}; --event-soft: {{ $eventSoft }}; --event-dark: {{ $eventDark }};">
-                            <div class="card-header bg-white border-0 p-4 pb-2"><h3 class="h4 fw-bold mb-0 d-flex align-items-center gap-3"><span class="event-icon">{{ $eventIcon }}</span><span>{{ $event['sport']->name }} <span class="event-category badge fs-6">{{ $event['category'] }}</span></span></h3></div>
+                            <div class="card-header bg-white border-0 p-4 pb-2 d-flex flex-wrap justify-content-between align-items-center gap-3"><h3 class="h4 fw-bold mb-0 d-flex align-items-center gap-3"><span class="event-icon">{{ $eventIcon }}</span><span>{{ $event['sport']->name }} <span class="event-category badge fs-6">{{ $event['category'] }}</span></span></h3><span class="badge {{ $eventStatusClass }}">{{ $eventStatusLabel }}</span></div>
                             <div class="card-body p-4">
                                 @if ($event['type'] === 'bowling')
                                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
                                         <div class="text-secondary">Kedudukan berdasarkan jumlah jatuhan pin daripada dua game setiap pemain.</div>
-                                        <span class="badge {{ $event['complete'] ? 'text-bg-success' : 'text-bg-warning' }}">
-                                            {{ $event['complete'] ? 'Selesai' : 'Sedang berlangsung' }}
-                                        </span>
                                     </div>
                                     <div class="row g-4">
                                         <div class="col-xl-5">

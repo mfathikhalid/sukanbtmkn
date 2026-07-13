@@ -16,6 +16,7 @@ use App\Services\KnockoutService;
 use App\Services\LeagueFixtureService;
 use App\Services\LeagueStandingService;
 use App\Services\MatchResultService;
+use App\Services\ScoreboardService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +36,10 @@ class TournamentEngineTest extends TestCase
 
         $this->assertSame(6, $fixtures->generate($sport, Gender::Male));
         $this->assertSame(0, $fixtures->generate($sport, Gender::Male));
+        $eventStatus = fn (): string => app(ScoreboardService::class)
+            ->eventBreakdown()
+            ->first(fn (array $event) => $event['event'] === 'FIFA' && $event['category'] === 'Lelaki')['status'];
+        $this->assertSame('not_started', $eventStatus());
 
         $leagueMatches = $this->tournamentMatches($sport, MatchStage::League);
         $scores = [[2, 0], [2, 0], [3, 1], [2, 0], [1, 0], [0, 2]];
@@ -42,6 +47,7 @@ class TournamentEngineTest extends TestCase
         foreach ($leagueMatches as $index => $match) {
             $results->submit($match, ...$scores[$index]);
         }
+        $this->assertSame('ongoing', $eventStatus());
 
         $standings = app(LeagueStandingService::class)->calculate($sport, Gender::Male);
 
@@ -63,6 +69,7 @@ class TournamentEngineTest extends TestCase
         $thirdPlace = $this->tournamentMatches($sport, MatchStage::ThirdPlace)->first();
         $results->submit($final, 3, 1);
         $results->submit($thirdPlace, 0, 2);
+        $this->assertSame('complete', $eventStatus());
 
         $points = app(HousePointService::class)->pointsByHouse();
 
@@ -239,7 +246,7 @@ class TournamentEngineTest extends TestCase
             ->assertSee('Jumlah Acara')
             ->assertSee('data-live-score="true"', false)
             ->assertSee('data-live-interval="5000"', false)
-            ->assertSee('Belum selesai')
+            ->assertSee('Belum bermula')
             ->assertSee('FIFA')
             ->assertSee('Round Robin')
             ->assertSee('Mata Boling')
@@ -263,6 +270,7 @@ class TournamentEngineTest extends TestCase
             ->assertSee('Peringkat Knockout')
             ->assertSee('Kedudukan Round Robin')
             ->assertSee('Keputusan Round Robin')
+            ->assertSee('Belum bermula')
             ->assertSee('LIVE')
             ->assertDontSee('Pilih pemenang');
     }
@@ -367,6 +375,9 @@ class TournamentEngineTest extends TestCase
         ]);
         $participant->sports()->attach($sport);
         $admin = User::factory()->create();
+        $bowling = app(BowlingService::class);
+
+        $this->assertSame('not_started', $bowling->status());
 
         $this->actingAs($admin)->post(route('bowling.store'), [
             'sport_id' => $sport->id,
@@ -384,6 +395,7 @@ class TournamentEngineTest extends TestCase
             'participant_id' => $participant->id,
             'game_number' => 2,
         ]);
+        $this->assertSame('ongoing', $bowling->status());
 
         $this->actingAs($admin)->post(route('bowling.store'), [
             'sport_id' => $sport->id,
@@ -397,6 +409,7 @@ class TournamentEngineTest extends TestCase
             'game_number' => 2,
             'score' => 145,
         ]);
+        $this->assertSame('complete', $bowling->status());
     }
 
     public function test_an_admin_can_reset_only_bowling_scores(): void

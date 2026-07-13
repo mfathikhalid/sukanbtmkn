@@ -66,7 +66,6 @@ class ScoreboardService
         $settings = $this->housePointService->positionPoints();
         $matches = LeagueMatch::query()
             ->with('result')
-            ->whereIn('stage', [MatchStage::Final, MatchStage::ThirdPlace])
             ->get();
 
         $events = Sport::query()
@@ -86,6 +85,10 @@ class ScoreboardService
                         $final = $eventMatches->firstWhere('stage', MatchStage::Final);
                         $thirdPlace = $eventMatches->firstWhere('stage', MatchStage::ThirdPlace);
                         $complete = (bool) ($final?->result?->winner_house_id && $thirdPlace?->result?->winner_house_id);
+                        $started = $eventMatches->contains(
+                            fn (LeagueMatch $match) => (bool) $match->result?->winner_house_id
+                        );
+                        $status = $complete ? 'complete' : ($started ? 'ongoing' : 'not_started');
                         $points = $houses->mapWithKeys(fn (House $house) => [$house->id => 0]);
 
                         if ($complete) {
@@ -105,6 +108,7 @@ class ScoreboardService
                             'event' => $sport->name,
                             'category' => $gender === Gender::Male->value ? 'Lelaki' : 'Perempuan',
                             'complete' => $complete,
+                            'status' => $status,
                             'points' => $points,
                         ];
                     })->all();
@@ -114,10 +118,12 @@ class ScoreboardService
 
         if ($bowlingSport) {
             $bowlingPoints = $this->housePointService->bowlingPointsByHouse();
+            $bowlingStatus = $this->bowlingService->status();
             $events->push([
                 'event' => $bowlingSport->name,
                 'category' => 'Keseluruhan',
-                'complete' => $this->bowlingService->isComplete(),
+                'complete' => $bowlingStatus === 'complete',
+                'status' => $bowlingStatus,
                 'points' => $houses->mapWithKeys(fn (House $house) => [
                     $house->id => $bowlingPoints[$house->id] ?? 0,
                 ]),
