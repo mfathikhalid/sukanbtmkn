@@ -27,17 +27,17 @@ class BowlingController extends Controller
         $data = $request->validate([
             'sport_id' => ['required', 'exists:sports,id'],
             'participant_id' => ['required', 'exists:participants,id'],
-            'game_1' => ['required', 'integer', 'min:0'],
-            'game_2' => ['required', 'integer', 'min:0'],
+            'game_1' => ['nullable', 'required_without:game_2', 'integer', 'min:0'],
+            'game_2' => ['nullable', 'required_without:game_1', 'integer', 'min:0'],
         ]);
 
         $this->bowlingService->saveGames(
             (int) $data['sport_id'],
             (int) $data['participant_id'],
-            (int) $data['game_1'],
-            (int) $data['game_2'],
+            isset($data['game_1']) ? (int) $data['game_1'] : null,
+            isset($data['game_2']) ? (int) $data['game_2'] : null,
         );
 
-        return redirect()->route('bowling.index')->with('success', 'Kedua-dua skor game berjaya disimpan.');
+        return redirect()->route('bowling.index')->with('success', 'Skor boling berjaya dikemas kini.');
     }
 }

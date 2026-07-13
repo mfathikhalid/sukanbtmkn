@@ -7,6 +7,7 @@ use App\Models\LeagueMatch;
 use App\Models\MatchResult;
 use App\Models\Sport;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MatchService
 {
@@ -48,5 +49,10 @@ class MatchService
     public function delete(LeagueMatch $match): void
     {
         $match->delete();
+    }
+
+    public function resetAll(): int
+    {
+        return DB::transaction(fn (): int => LeagueMatch::query()->delete());
     }
 }

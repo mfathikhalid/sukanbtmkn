@@ -85,6 +85,43 @@ class TournamentEngineTest extends TestCase
         $service->submit($match, 2, 0);
     }
 
+    public function test_an_admin_can_reset_all_matches_and_results(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $sport = Sport::query()->where('name', 'FIFA')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => House::query()->firstOrFail()->id,
+            'employee_no' => 'RESET-001',
+            'name' => 'Peserta Reset',
+            'gender' => Gender::Male,
+        ]);
+        $sport->participants()->attach($participant);
+        app(LeagueFixtureService::class)->generate($sport, Gender::Male);
+        $match = $this->tournamentMatches($sport, MatchStage::League)->first();
+        app(MatchResultService::class)->submitWinner($match, $match->home_house_id);
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('matches.reset'))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseCount('matches', 0);
+        $this->assertDatabaseCount('match_results', 0);
+        $this->assertDatabaseCount('sport_registrations', 1);
+    }
+
+    public function test_the_dashboard_shows_a_reset_confirmation_dialog(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('resetMatchesModal')
+            ->assertSee('Reset semua perlawanan?')
+            ->assertSee('Ya, Reset Semua');
+    }
+
     public function test_a_draw_is_not_allowed_during_the_league_stage(): void
     {
         $this->seed(DatabaseSeeder::class);
@@ -230,6 +267,24 @@ class TournamentEngineTest extends TestCase
             ->assertDontSee('Pilih pemenang');
     }
 
+    public function test_live_knockout_events_follow_the_scoreboard_order(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $events = $this->get(route('live.index'))
+            ->assertOk()
+            ->viewData('events')
+            ->pluck('sport.name')
+            ->unique()
+            ->values()
+            ->all();
+
+        $this->assertSame(
+            ['Congkak', 'FIFA', 'Tekken', 'Dart', 'Carrom', 'Bowling', 'Pickleball'],
+            $events,
+        );
+    }
+
     public function test_the_updated_dashboard_shows_live_operations_and_event_progress(): void
     {
         $this->seed(DatabaseSeeder::class);
@@ -296,6 +351,50 @@ class TournamentEngineTest extends TestCase
         $this->assertSame(7, $positionPoints[House::query()->where('name', 'Biru')->value('id')]);
         $this->assertSame(5, $positionPoints[House::query()->where('name', 'Hijau')->value('id')]);
         $this->assertSame(3, $positionPoints[House::query()->where('name', 'Kuning')->value('id')]);
+    }
+
+    public function test_bowling_game_one_can_be_saved_before_game_two(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $sport = Sport::query()->where('name', 'Bowling')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => House::query()->firstOrFail()->id,
+            'employee_no' => 'BOWL-PROGRESSIVE',
+            'name' => 'Pemain Berperingkat',
+            'gender' => Gender::Male,
+        ]);
+        $participant->sports()->attach($sport);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post(route('bowling.store'), [
+            'sport_id' => $sport->id,
+            'participant_id' => $participant->id,
+            'game_1' => 120,
+            'game_2' => null,
+        ])->assertRedirect(route('bowling.index'));
+
+        $this->assertDatabaseHas('bowling_scores', [
+            'participant_id' => $participant->id,
+            'game_number' => 1,
+            'score' => 120,
+        ]);
+        $this->assertDatabaseMissing('bowling_scores', [
+            'participant_id' => $participant->id,
+            'game_number' => 2,
+        ]);
+
+        $this->actingAs($admin)->post(route('bowling.store'), [
+            'sport_id' => $sport->id,
+            'participant_id' => $participant->id,
+            'game_1' => 120,
+            'game_2' => 145,
+        ])->assertRedirect(route('bowling.index'));
+
+        $this->assertDatabaseHas('bowling_scores', [
+            'participant_id' => $participant->id,
+            'game_number' => 2,
+            'score' => 145,
+        ]);
     }
 
     private function tournamentMatches(Sport $sport, MatchStage $stage)

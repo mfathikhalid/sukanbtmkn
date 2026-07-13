@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/matches/{sport}/semi-finals', [MatchController::class, 'semiFinals'])->name('matches.semi-finals');
     Route::post('/matches/{sport}/finals', [MatchController::class, 'finals'])->name('matches.finals');
     Route::post('/matches/{sport}/third-place', [MatchController::class, 'thirdPlace'])->name('matches.third-place');
+    Route::delete('/matches', [MatchController::class, 'reset'])->name('matches.reset');
     Route::get('/bowling', [BowlingController::class, 'index'])->name('bowling.index');
     Route::post('/bowling', [BowlingController::class, 'store'])->name('bowling.store');
     Route::get('/scoreboard', [ScoreboardController::class, 'index'])->name('scoreboard.index');

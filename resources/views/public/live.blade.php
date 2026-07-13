@@ -92,10 +92,50 @@
                 <h2 class="h3 fw-bold mb-4">Peringkat Knockout</h2>
                 <div class="d-grid gap-4">
                     @foreach ($events as $event)
-                        @php($eventKey = $event['sport']->id.'-'.strtolower($event['gender']->value))
                         <article class="card border-0 shadow-sm rounded-4">
                             <div class="card-header bg-white border-0 p-4 pb-2"><h3 class="h4 fw-bold mb-0">{{ $event['sport']->name }} <span class="badge text-bg-light border fs-6">{{ $event['category'] }}</span></h3></div>
                             <div class="card-body p-4">
+                                @if ($event['type'] === 'bowling')
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                                        <div class="text-secondary">Kedudukan berdasarkan jumlah jatuhan pin daripada dua game setiap pemain.</div>
+                                        <span class="badge {{ $event['complete'] ? 'text-bg-success' : 'text-bg-warning' }}">
+                                            {{ $event['complete'] ? 'Selesai' : 'Sedang berlangsung' }}
+                                        </span>
+                                    </div>
+                                    <div class="row g-4">
+                                        <div class="col-xl-5">
+                                            <h4 class="h6 fw-bold mb-3">Jumlah Pin Rumah</h4>
+                                            <div class="d-grid gap-2">
+                                                @forelse ($event['houseTotals'] as $houseId => $total)
+                                                    @php($house = $event['playerTotals']->pluck('participant.house')->firstWhere('id', $houseId))
+                                                    <div class="d-flex align-items-center gap-2 border rounded-3 p-3">
+                                                        <span class="rounded-circle border" style="width: .8rem; height: .8rem; background: {{ $house?->color }}"></span>
+                                                        <span class="fw-semibold flex-grow-1">Rumah {{ $house?->name }}</span>
+                                                        <span class="fw-bold">{{ number_format($total) }}</span>
+                                                    </div>
+                                                @empty
+                                                    <div class="text-secondary">Belum ada skor direkodkan.</div>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-7">
+                                            <h4 class="h6 fw-bold mb-3">Skor Pemain</h4>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm align-middle mb-0">
+                                                    <thead class="table-light"><tr><th>#</th><th>Pemain</th><th>Rumah</th><th class="text-center">Game 1</th><th class="text-center">Game 2</th><th class="text-end">Jumlah</th></tr></thead>
+                                                    <tbody>
+                                                        @forelse ($event['playerTotals'] as $index => $row)
+                                                            <tr><td>{{ $index + 1 }}</td><td class="fw-semibold">{{ $row['participant']->name }}</td><td>{{ $row['participant']->house?->name }}</td><td class="text-center">{{ $row['game_1'] ?? '—' }}</td><td class="text-center">{{ $row['game_2'] ?? '—' }}</td><td class="text-end fw-bold">{{ number_format($row['total']) }}</td></tr>
+                                                        @empty
+                                                            <tr><td colspan="6" class="text-center text-secondary py-4">Tiada peserta boling berdaftar.</td></tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    @php($eventKey = $event['sport']->id.'-'.strtolower($event['gender']->value))
                                 <div class="accordion mb-4" id="round-robin-{{ $eventKey }}">
                                     <div class="accordion-item rounded-4 overflow-hidden border">
                                         <h4 class="accordion-header">
@@ -138,6 +178,7 @@
                                 </div>
 
                                 <div class="row g-3"><div class="col-lg-3"><x-public-match :match="$event['semiFinals']->get(0)" title="Separuh Akhir 1" /></div><div class="col-lg-3"><x-public-match :match="$event['semiFinals']->get(1)" title="Separuh Akhir 2" /></div><div class="col-lg-3"><x-public-match :match="$event['thirdPlace']" title="Tempat Ketiga" /></div><div class="col-lg-3"><x-public-match :match="$event['final']" title="Final" /></div></div>
+                                @endif
                             </div>
                         </article>
                     @endforeach

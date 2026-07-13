@@ -5,7 +5,7 @@
         <div>
             <div class="text-uppercase fw-bold text-primary small mb-2" style="letter-spacing: .12em;">Acara Boling</div>
             <h1 class="h2 fw-bold mb-1">Skor Dua Game</h1>
-            <p class="text-secondary mb-0">Masukkan Game 1 dan Game 2 terus pada baris setiap pemain berdaftar.</p>
+            <p class="text-secondary mb-0">Simpan skor Game 1 dahulu, kemudian kemas kini Game 2 apabila selesai.</p>
         </div>
         <span class="badge {{ $isComplete ? 'text-bg-success' : 'text-bg-warning' }} px-3 py-2">
             {{ $playerTotals->filter(fn ($row) => $row['game_1'] !== null && $row['game_2'] !== null)->count() }} / {{ $playerTotals->count() }} pemain lengkap
@@ -53,10 +53,10 @@
                                 </span>
                             </td>
                             <td>
-                                <input form="bowling-player-{{ $row['participant']->id }}" type="number" min="0" name="game_1" value="{{ $row['game_1'] }}" class="form-control" placeholder="0" required>
+                                <input form="bowling-player-{{ $row['participant']->id }}" type="number" min="0" name="game_1" value="{{ $row['game_1'] }}" class="form-control" placeholder="Belum dimainkan">
                             </td>
                             <td>
-                                <input form="bowling-player-{{ $row['participant']->id }}" type="number" min="0" name="game_2" value="{{ $row['game_2'] }}" class="form-control" placeholder="0" required>
+                                <input form="bowling-player-{{ $row['participant']->id }}" type="number" min="0" name="game_2" value="{{ $row['game_2'] }}" class="form-control" placeholder="Belum dimainkan">
                             </td>
                             <td class="text-center fs-5 fw-bold">{{ number_format($row['total']) }}</td>
                             <td class="text-end pe-4">
@@ -64,7 +64,7 @@
                                     @csrf
                                     <input type="hidden" name="sport_id" value="{{ $bowlingSport?->id }}">
                                     <input type="hidden" name="participant_id" value="{{ $row['participant']->id }}">
-                                    <button class="btn btn-sm btn-dark px-3" type="submit">Simpan</button>
+                                    <button class="btn btn-sm btn-dark px-3" type="submit">{{ $row['game_1'] !== null || $row['game_2'] !== null ? 'Kemas Kini' : 'Simpan' }}</button>
                                 </form>
                             </td>
                         </tr>

@@ -57,6 +57,13 @@ class MatchController extends Controller
         return back()->with('success', "Generated {$created} third-place match.");
     }
 
+    public function reset(): RedirectResponse
+    {
+        $deleted = $this->matchService->resetAll();
+
+        return back()->with('success', "{$deleted} perlawanan dan keputusannya telah direset.");
+    }
+
     private function gender(Request $request): Gender
     {
         return Gender::tryFrom((string) $request->input('gender')) ?? Gender::Male;

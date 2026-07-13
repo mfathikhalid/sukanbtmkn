@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Gender;
 use App\Enums\SportType;
 use App\Models\Sport;
+use App\Services\BowlingService;
 use App\Services\KnockoutBracketService;
 use App\Services\LeagueStandingService;
 use App\Services\ScoreboardService;
@@ -16,6 +17,7 @@ class PublicLiveController extends Controller
         private readonly ScoreboardService $scoreboardService,
         private readonly KnockoutBracketService $bracketService,
         private readonly LeagueStandingService $standingService,
+        private readonly BowlingService $bowlingService,
     ) {}
 
     public function __invoke(): View
@@ -34,6 +36,7 @@ class PublicLiveController extends Controller
                         $genderEnum = Gender::from($gender);
 
                         return [
+                            'type' => 'tournament',
                             'sport' => $sport,
                             'gender' => $genderEnum,
                             'category' => $genderEnum === Gender::Male ? 'Lelaki' : 'Perempuan',
@@ -41,7 +44,26 @@ class PublicLiveController extends Controller
                             ...$this->bracketService->for($sport, $genderEnum),
                         ];
                     })->all();
-            })
+            });
+
+        $bowlingSport = Sport::query()->where('type', SportType::Bowling)->first();
+
+        if ($bowlingSport) {
+            $events->push([
+                'type' => 'bowling',
+                'sport' => $bowlingSport,
+                'category' => 'Keseluruhan',
+                'playerTotals' => $this->bowlingService->playerTotals()->sortByDesc('total')->values(),
+                'houseTotals' => $this->bowlingService->houseTotals(),
+                'complete' => $this->bowlingService->isComplete(),
+            ]);
+        }
+
+        $events = $events
+            ->sortBy(fn (array $event) => [
+                $this->scoreboardService->eventOrder($event['sport']->name),
+                ($event['gender'] ?? null) === Gender::Male ? 1 : 2,
+            ])
             ->values();
 
         return view('public.live', [

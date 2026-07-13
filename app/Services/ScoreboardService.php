@@ -55,6 +55,11 @@ class ScoreboardService
         return $this->housePointService->pointsByHouse();
     }
 
+    public function eventOrder(string $eventName): int
+    {
+        return self::EVENT_ORDER[$eventName] ?? PHP_INT_MAX;
+    }
+
     public function eventBreakdown(): Collection
     {
         $houses = House::query()->orderBy('name')->get();
@@ -121,7 +126,7 @@ class ScoreboardService
 
         return $events
             ->sortBy(fn (array $event) => [
-                self::EVENT_ORDER[$event['event']] ?? PHP_INT_MAX,
+                $this->eventOrder($event['event']),
                 $event['category'] === 'Lelaki' ? 1 : 2,
             ])
             ->values();

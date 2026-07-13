@@ -54,12 +54,17 @@ class BowlingService
     public function saveGames(
         int $sportId,
         int $participantId,
-        int $gameOneScore,
-        int $gameTwoScore,
+        ?int $gameOneScore,
+        ?int $gameTwoScore,
     ): void {
         DB::transaction(function () use ($sportId, $participantId, $gameOneScore, $gameTwoScore): void {
-            $this->save($sportId, $participantId, 1, $gameOneScore);
-            $this->save($sportId, $participantId, 2, $gameTwoScore);
+            if ($gameOneScore !== null) {
+                $this->save($sportId, $participantId, 1, $gameOneScore);
+            }
+
+            if ($gameTwoScore !== null) {
+                $this->save($sportId, $participantId, 2, $gameTwoScore);
+            }
         });
     }
 
