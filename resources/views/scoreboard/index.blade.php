@@ -35,7 +35,7 @@
                 $rankClass = match ($index) { 0 => 'rank-gold', 1 => 'rank-silver', 2 => 'rank-bronze' };
             @endphp
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {{ $podiumClass }}">
+                <div class="card border-0 shadow-sm rounded-4 h-100 podium-card {{ $podiumClass }}">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-start mb-4">
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold {{ $rankClass }}" style="width: 2.5rem; height: 2.5rem;">{{ $index + 1 }}</span>

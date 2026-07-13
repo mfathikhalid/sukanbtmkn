@@ -14,13 +14,16 @@
         .public-match { background: #fff; }
         .live-dot { width: .65rem; height: .65rem; background: #22c55e; box-shadow: 0 0 0 .25rem rgba(34, 197, 94, .2); }
         .ranking-card { transition: transform .65s ease, box-shadow .3s ease; }
-        .ranking-leader { box-shadow: 0 1rem 2.5rem rgba(37, 99, 235, .2) !important; border: 1px solid rgba(37, 99, 235, .22) !important; }
-        .podium-gold { background: linear-gradient(145deg, #fffdf0, #fef3c7); border: 1px solid #f59e0b !important; }
-        .podium-silver { background: linear-gradient(145deg, #ffffff, #e2e8f0); border: 1px solid #94a3b8 !important; }
-        .podium-bronze { background: linear-gradient(145deg, #fffaf5, #fed7aa); border: 1px solid #c2410c !important; }
-        .rank-gold { background: #d97706; color: #fff; }
-        .rank-silver { background: #64748b; color: #fff; }
-        .rank-bronze { background: #9a3412; color: #fff; }
+        .ranking-leader { box-shadow: 0 1.2rem 2.8rem rgba(161, 98, 7, .28) !important; }
+        .podium-card { position: relative; overflow: hidden; isolation: isolate; }
+        .podium-card::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at 18% 8%, rgba(255, 255, 255, .78), transparent 34%); pointer-events: none; }
+        .podium-card > * { position: relative; z-index: 1; }
+        .podium-gold { background: linear-gradient(135deg, #fff8d2 0%, #f7dc78 24%, #c99716 50%, #f6e6a2 73%, #a66f08 100%); border: 1px solid #b77909 !important; box-shadow: inset 0 1px rgba(255, 255, 255, .8), 0 .9rem 2rem rgba(161, 98, 7, .2); }
+        .podium-silver { background: linear-gradient(135deg, #ffffff 0%, #dfe4ea 24%, #9aa3ad 50%, #edf1f5 73%, #77818d 100%); border: 1px solid #8b95a1 !important; box-shadow: inset 0 1px rgba(255, 255, 255, .95), 0 .9rem 2rem rgba(71, 85, 105, .18); }
+        .podium-bronze { background: linear-gradient(135deg, #ffe2c2 0%, #d89252 24%, #995226 50%, #e7ad73 73%, #713716 100%); border: 1px solid #92400e !important; box-shadow: inset 0 1px rgba(255, 255, 255, .65), 0 .9rem 2rem rgba(120, 53, 15, .2); }
+        .rank-gold { background: linear-gradient(145deg, #f8df7b, #9f6907); color: #fff; border: 1px solid #fff0a6; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); box-shadow: 0 .3rem .7rem rgba(161, 98, 7, .3); }
+        .rank-silver { background: linear-gradient(145deg, #eef2f6, #66717d); color: #fff; border: 1px solid #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .45); box-shadow: 0 .3rem .7rem rgba(71, 85, 105, .28); }
+        .rank-bronze { background: linear-gradient(145deg, #e5a66a, #713716); color: #fff; border: 1px solid #ffd1a4; text-shadow: 0 1px 2px rgba(0, 0, 0, .4); box-shadow: 0 .3rem .7rem rgba(120, 53, 15, .3); }
     </style>
 </head>
 <body>
@@ -54,7 +57,7 @@
                             $rankClass = match ($index) { 0 => 'rank-gold', 1 => 'rank-silver', 2 => 'rank-bronze', default => 'text-bg-dark' };
                         @endphp
                         <div class="col-sm-6 col-lg-3" data-ranking-card data-house-id="{{ $row['house']->id }}">
-                            <div class="card border-0 shadow-sm rounded-4 h-100 ranking-card {{ $podiumClass }} {{ $index === 0 ? 'ranking-leader' : '' }}">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 ranking-card {{ $index < 3 ? 'podium-card' : '' }} {{ $podiumClass }} {{ $index === 0 ? 'ranking-leader' : '' }}">
                                 <div class="card-body p-4">
                                     <div class="d-flex justify-content-between mb-3">
                                         <span class="badge {{ $rankClass }}">#{{ $index + 1 }}</span>
