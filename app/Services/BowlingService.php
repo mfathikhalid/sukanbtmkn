@@ -51,6 +51,11 @@ class BowlingService
         $score->delete();
     }
 
+    public function resetAll(): int
+    {
+        return BowlingScore::query()->delete();
+    }
+
     public function saveGames(
         int $sportId,
         int $participantId,

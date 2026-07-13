@@ -8,17 +8,21 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\PublicLiveController;
+use App\Http\Controllers\PublicParticipantController;
+use App\Http\Controllers\PublicRegistrationController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ScoreboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : view('auth.login');
-});
+Route::view('/', 'public.home')->name('home');
 
 Route::get('/live', PublicLiveController::class)->name('live.index');
+Route::view('/jadual', 'public.schedule')->name('schedule.index');
+Route::get('/peserta', PublicParticipantController::class)->name('public-participants.index');
+Route::get('/daftar', [PublicRegistrationController::class, 'create'])->name('public-registration.create');
+Route::post('/daftar', [PublicRegistrationController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('public-registration.store');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
@@ -48,5 +52,6 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/matches', [MatchController::class, 'reset'])->name('matches.reset');
     Route::get('/bowling', [BowlingController::class, 'index'])->name('bowling.index');
     Route::post('/bowling', [BowlingController::class, 'store'])->name('bowling.store');
+    Route::delete('/bowling/scores', [BowlingController::class, 'reset'])->name('bowling.reset');
     Route::get('/scoreboard', [ScoreboardController::class, 'index'])->name('scoreboard.index');
 });

@@ -40,4 +40,11 @@ class BowlingController extends Controller
 
         return redirect()->route('bowling.index')->with('success', 'Skor boling berjaya dikemas kini.');
     }
+
+    public function reset(): RedirectResponse
+    {
+        $deleted = $this->bowlingService->resetAll();
+
+        return back()->with('success', "{$deleted} skor boling telah direset.");
+    }
 }

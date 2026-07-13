@@ -298,6 +298,8 @@ class TournamentEngineTest extends TestCase
             ->assertSee('Kemajuan Setiap Acara')
             ->assertSee('Tindakan Pantas')
             ->assertSee('Paparan Awam Live')
+            ->assertSee('data-admin-theme="carnival"', false)
+            ->assertSee('Karnival Sukan BTMKN')
             ->assertDontSee('Lapisan sistem pertama');
     }
 
@@ -395,6 +397,89 @@ class TournamentEngineTest extends TestCase
             'game_number' => 2,
             'score' => 145,
         ]);
+    }
+
+    public function test_an_admin_can_reset_only_bowling_scores(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $sport = Sport::query()->where('name', 'Bowling')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => House::query()->firstOrFail()->id,
+            'employee_no' => 'BOWL-RESET',
+            'name' => 'Pemain Reset Bowling',
+            'gender' => Gender::Male,
+        ]);
+        $participant->sports()->attach($sport);
+        app(BowlingService::class)->save($sport->id, $participant->id, 1, 130);
+
+        $leagueSport = Sport::query()->where('name', 'FIFA')->firstOrFail();
+        app(LeagueFixtureService::class)->generate($leagueSport, Gender::Male);
+
+        $this->actingAs(User::factory()->create())
+            ->delete(route('bowling.reset'))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseCount('bowling_scores', 0);
+        $this->assertDatabaseCount('matches', 6);
+        $this->assertDatabaseCount('sport_registrations', 1);
+    }
+
+    public function test_a_participant_can_register_for_events_from_the_public_page(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $house = House::query()->where('name', 'Merah')->firstOrFail();
+        $fifa = Sport::query()->where('name', 'FIFA')->firstOrFail();
+        $dart = Sport::query()->where('name', 'Dart')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => $house->id,
+            'employee_no' => 'PUBLIC-001',
+            'name' => 'Peserta Awam',
+            'gender' => Gender::Male,
+            'department' => 'Teknologi Maklumat',
+        ]);
+
+        $this->get(route('public-registration.create'))
+            ->assertOk()
+            ->assertSee('Pendaftaran Peserta')
+            ->assertSee('Peserta Awam')
+            ->assertSee('Hantar Pendaftaran');
+
+        $this->post(route('public-registration.store'), [
+            'house_id' => $house->id,
+            'participant_id' => $participant->id,
+            'sport_ids' => [$fifa->id, $dart->id],
+        ])->assertRedirect(route('public-registration.create'))
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseCount('participants', 1);
+        $this->assertEqualsCanonicalizing(
+            [$fifa->id, $dart->id],
+            $participant->sports()->pluck('sports.id')->all(),
+        );
+    }
+
+    public function test_the_public_participant_listing_hides_employee_numbers(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $house = House::query()->where('name', 'Biru')->firstOrFail();
+        $sport = Sport::query()->where('name', 'Pickleball')->firstOrFail();
+        $participant = Participant::query()->create([
+            'house_id' => $house->id,
+            'employee_no' => 'PRIVATE-EMPLOYEE-NUMBER',
+            'name' => 'Peserta Senarai Awam',
+            'gender' => Gender::Female,
+        ]);
+        $participant->sports()->attach($sport);
+
+        $this->get(route('public-participants.index', ['house_id' => $house->id]))
+            ->assertOk()
+            ->assertSee('Senarai Peserta')
+            ->assertSee('Peserta Senarai Awam')
+            ->assertSee('Pickleball')
+            ->assertSee('Senarai Mengikut Acara')
+            ->assertSee('Rumah Biru')
+            ->assertDontSee('PRIVATE-EMPLOYEE-NUMBER');
     }
 
     private function tournamentMatches(Sport $sport, MatchStage $stage)

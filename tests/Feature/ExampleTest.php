@@ -14,7 +14,13 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response
+            ->assertStatus(200)
+            ->assertSee('Karnival Sukan BTMKN 2026')
+            ->assertSee('Daftar Acara')
+            ->assertSee('Senarai Peserta')
+            ->assertSee('Keputusan Live')
+            ->assertSee('Jadual');
     }
 
     public function test_cloudflare_forwarded_https_is_used_for_generated_form_urls(): void
@@ -29,5 +35,26 @@ class ExampleTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('action="https://sukan.example.com/login"', false);
+    }
+
+    public function test_the_public_can_view_the_match_schedule_without_login(): void
+    {
+        $this->get(route('schedule.index'))
+            ->assertOk()
+            ->assertSee('Jadual Perlawanan')
+            ->assertSeeInOrder([
+                'Congkak',
+                '17 Julai 2026',
+                'E-Sukan',
+                '21 Julai 2026',
+                'Dart',
+                '27 Julai 2026',
+                'Karom',
+                '30 Julai 2026',
+                'Boling',
+                '31 Julai 2026',
+                'Pickleball',
+                '1 Ogos 2026',
+            ]);
     }
 }

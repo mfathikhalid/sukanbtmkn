@@ -27,6 +27,7 @@ class DashboardService
             ->get();
         $totalMatches = $sports->sum('matches_count');
         $completedMatches = $sports->sum('completed_matches_count');
+        $totalBowlingScores = BowlingScore::query()->count();
         $houseRankings = $this->scoreboardService->houseStandings()->take(4)->values();
 
         return [
@@ -38,16 +39,16 @@ class DashboardService
             'totalMatches' => $totalMatches,
             'completedMatches' => $completedMatches,
             'pendingMatches' => $totalMatches - $completedMatches,
+            'totalBowlingScores' => $totalBowlingScores,
             'matchProgress' => $totalMatches > 0 ? (int) round(($completedMatches / $totalMatches) * 100) : 0,
             'houseRankings' => $houseRankings,
             'leader' => $houseRankings->first(),
-            'eventProgress' => $this->eventProgress($sports),
+            'eventProgress' => $this->eventProgress($sports, $totalBowlingScores),
         ];
     }
 
-    private function eventProgress(Collection $sports): Collection
+    private function eventProgress(Collection $sports, int $bowlingScores): Collection
     {
-        $bowlingScores = BowlingScore::query()->count();
         $bowlingPlayers = Participant::query()
             ->whereHas('sports', fn ($query) => $query->where('type', SportType::Bowling))
             ->count();

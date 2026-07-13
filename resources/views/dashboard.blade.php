@@ -129,9 +129,37 @@
                 <a href="{{ route('registrations.create') }}" class="btn btn-outline-dark">Daftar Acara</a>
                 <a href="{{ route('scoreboard.index') }}" class="btn btn-outline-primary">Scoreboard</a>
                 <a href="{{ route('live.index') }}" target="_blank" class="btn btn-outline-success">Paparan Awam Live</a>
-                <button type="button" class="btn btn-outline-danger ms-sm-auto" data-bs-toggle="modal" data-bs-target="#resetMatchesModal" @disabled($totalMatches === 0)>
-                    Reset Semua Perlawanan
-                </button>
+                <div class="d-flex flex-wrap gap-2 ms-sm-auto">
+                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetBowlingModal" @disabled($totalBowlingScores === 0)>
+                        Reset Skor Bowling
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#resetMatchesModal" @disabled($totalMatches === 0)>
+                        Reset Semua Perlawanan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="resetBowlingModal" tabindex="-1" aria-labelledby="resetBowlingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 px-4 pt-4 pb-2">
+                    <h2 class="modal-title h5 fw-bold text-warning-emphasis" id="resetBowlingModalLabel">Reset semua skor Bowling?</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <p class="mb-2">Semua skor Game 1 dan Game 2 Bowling akan dipadam.</p>
+                    <p class="small text-secondary mb-0">Perlawanan acara lain, peserta dan pendaftaran tidak akan terjejas. Tindakan ini tidak boleh dibatalkan.</p>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-2">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <form method="post" action="{{ route('bowling.reset') }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-warning">Ya, Reset Skor Bowling</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

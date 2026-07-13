@@ -9,10 +9,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Manrope', sans-serif; background: #f1f5f9; color: #0f172a; }
-        .hero { background: linear-gradient(135deg, #020617, #1e3a8a 65%, #2563eb); }
+        body { font-family: 'Manrope', sans-serif; background: radial-gradient(circle at 6% 14%, rgba(249, 115, 22, .09), transparent 20%), radial-gradient(circle at 96% 58%, rgba(37, 99, 235, .09), transparent 24%), #f8fafc; color: #0f172a; }
+        .hero { position: relative; overflow: hidden; background: radial-gradient(circle at 84% 16%, rgba(250, 204, 21, .32), transparent 18%), radial-gradient(circle at 10% 90%, rgba(249, 115, 22, .34), transparent 24%), linear-gradient(120deg, #020617, #1e3a8a 54%, #2563eb); }
+        .hero::after { content: ''; position: absolute; inset: auto 0 0; height: .65rem; background: repeating-linear-gradient(90deg, #f97316 0 12.5%, #facc15 12.5% 25%, #22c55e 25% 37.5%, #38bdf8 37.5% 50%, #f97316 50% 62.5%, #facc15 62.5% 75%, #22c55e 75% 87.5%, #38bdf8 87.5% 100%); }
+        .hero-grid { position: absolute; inset: 0; opacity: .09; background-image: linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px); background-size: 42px 42px; transform: perspective(420px) rotateX(58deg) scale(1.4); transform-origin: bottom; }
+        .confetti { position: absolute; width: .65rem; height: .65rem; border-radius: .15rem; transform: rotate(24deg); }
         .public-match { background: #fff; }
         .live-dot { width: .65rem; height: .65rem; background: #22c55e; box-shadow: 0 0 0 .25rem rgba(34, 197, 94, .2); }
+        .live-pill { border: 1px solid rgba(255, 255, 255, .2); }
+        .section-kicker { display: inline-flex; align-items: center; gap: .45rem; padding: .35rem .75rem; border-radius: 999px; color: #1d4ed8; background: #dbeafe; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+        .score-table { border-top: .35rem solid #f97316; }
+        .score-table thead th { background: #fff7ed; color: #9a3412; }
+        .event-card { position: relative; overflow: hidden; border-top: .4rem solid var(--event-color) !important; }
+        .event-card::after { content: ''; position: absolute; width: 10rem; height: 10rem; right: -6rem; top: -6rem; border: 1.7rem solid var(--event-soft); border-radius: 50%; pointer-events: none; }
+        .event-card > * { position: relative; z-index: 1; }
+        .event-icon { width: 2.75rem; height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; border-radius: .8rem; background: var(--event-soft); font-size: 1.3rem; }
+        .event-category { color: var(--event-dark); background: var(--event-soft); }
         .ranking-card { transition: transform .65s ease, box-shadow .3s ease; }
         .ranking-leader { box-shadow: 0 1.2rem 2.8rem rgba(161, 98, 7, .28) !important; }
         .podium-card { position: relative; overflow: hidden; isolation: isolate; }
@@ -29,17 +41,26 @@
 <body>
     <main id="public-live-content">
         <header class="hero text-white py-4 py-lg-5 mb-4">
-            <div class="container">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="hero-grid"></div>
+            <span class="confetti bg-warning" style="top: 18%; left: 7%;"></span>
+            <span class="confetti bg-info" style="top: 22%; right: 7%; transform: rotate(58deg);"></span>
+            <span class="confetti bg-success" style="bottom: 25%; right: 20%;"></span>
+            <div class="container position-relative py-lg-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
                     <div>
-                        <div class="text-info fw-bold text-uppercase small mb-2" style="letter-spacing: .15em;">Sukan BTMKN</div>
+                        <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-25 rounded-pill px-3 py-2 fw-bold text-uppercase small mb-3" style="letter-spacing: .12em;">🏆 Karnival Sukan BTMKN 2026</div>
                         <h1 class="display-5 fw-bold mb-1">Keputusan Langsung</h1>
-                        <div class="text-white-50">Scoreboard dan bracket knockout semua acara</div>
+                        <div class="text-white-50 fs-5">Semangat rumah. Aksi sebenar. Keputusan terkini.</div>
                     </div>
-                    <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-4 py-2">
-                        <span class="live-dot rounded-circle"></span>
-                        <strong>LIVE</strong>
-                        <span id="public-live-time" class="text-white-50 small"></span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <a href="{{ route('public-registration.create') }}" class="btn btn-warning rounded-pill px-4">Daftar Peserta</a>
+                        <a href="{{ route('public-participants.index') }}" class="btn btn-outline-light rounded-pill px-4">Senarai Peserta</a>
+                        <a href="{{ route('schedule.index') }}" class="btn btn-outline-light rounded-pill px-4">Jadual Perlawanan</a>
+                        <div class="live-pill d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-4 py-2">
+                            <span class="live-dot rounded-circle"></span>
+                            <strong>LIVE</strong>
+                            <span id="public-live-time" class="text-white-50 small"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +69,7 @@
         <div class="container pb-5">
             <section class="mb-5">
                 <div class="d-flex justify-content-between align-items-end mb-3">
-                    <div><div class="text-primary fw-bold small text-uppercase">Scoreboard</div><h2 class="h3 fw-bold mb-0">Kedudukan Keseluruhan</h2></div>
+                    <div><div class="section-kicker mb-2">🏅 Scoreboard</div><h2 class="h3 fw-bold mb-0">Kedudukan Keseluruhan</h2></div>
                 </div>
                 <div class="row g-3">
                     @foreach ($standings as $index => $row)
@@ -57,7 +78,7 @@
                             $rankClass = match ($index) { 0 => 'rank-gold', 1 => 'rank-silver', 2 => 'rank-bronze', default => 'text-bg-dark' };
                         @endphp
                         <div class="col-sm-6 col-lg-3" data-ranking-card data-house-id="{{ $row['house']->id }}">
-                            <div class="card border-0 shadow-sm rounded-4 h-100 ranking-card {{ $index < 3 ? 'podium-card' : '' }} {{ $podiumClass }} {{ $index === 0 ? 'ranking-leader' : '' }}">
+                            <div class="card border-0 shadow-sm rounded-4 h-100 ranking-card {{ $index < 3 ? 'podium-card' : '' }} {{ $podiumClass }} {{ $index === 0 ? 'ranking-leader' : '' }}" style="border-top: .35rem solid {{ $row['house']->color }} !important;">
                                 <div class="card-body p-4">
                                     <div class="d-flex justify-content-between mb-3">
                                         <span class="badge {{ $rankClass }}">#{{ $index + 1 }}</span>
@@ -74,8 +95,9 @@
             </section>
 
             <section class="mb-5">
+                <div class="section-kicker mb-2">🏆 Kutipan Mata</div>
                 <h2 class="h3 fw-bold mb-3">Mata Mengikut Acara</h2>
-                <div class="table-responsive bg-white rounded-4 shadow-sm">
+                <div class="score-table table-responsive bg-white rounded-4 shadow-sm overflow-hidden">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light"><tr><th class="ps-4">Acara</th><th>Kategori</th>@foreach ($standings as $row)<th class="text-center">{{ $row['house']->name }}</th>@endforeach<th class="pe-4 text-end">Status</th></tr></thead>
                         <tbody>
@@ -88,12 +110,23 @@
             </section>
 
             <section>
-                <div class="text-primary fw-bold small text-uppercase">Bracket</div>
+                <div class="section-kicker mb-2">⚡ Arena Pertandingan</div>
                 <h2 class="h3 fw-bold mb-4">Peringkat Knockout</h2>
                 <div class="d-grid gap-4">
                     @foreach ($events as $event)
-                        <article class="card border-0 shadow-sm rounded-4">
-                            <div class="card-header bg-white border-0 p-4 pb-2"><h3 class="h4 fw-bold mb-0">{{ $event['sport']->name }} <span class="badge text-bg-light border fs-6">{{ $event['category'] }}</span></h3></div>
+                        @php
+                            [$eventIcon, $eventColor, $eventSoft, $eventDark] = match ($event['sport']->name) {
+                                'Congkak' => ['●', '#f97316', '#ffedd5', '#9a3412'],
+                                'FIFA', 'Tekken' => ['🎮', '#2563eb', '#dbeafe', '#1e40af'],
+                                'Dart' => ['🎯', '#dc2626', '#fee2e2', '#991b1b'],
+                                'Carrom' => ['◆', '#7c3aed', '#ede9fe', '#5b21b6'],
+                                'Bowling' => ['🎳', '#0891b2', '#cffafe', '#155e75'],
+                                'Pickleball' => ['🏓', '#16a34a', '#dcfce7', '#166534'],
+                                default => ['🏆', '#2563eb', '#dbeafe', '#1e40af'],
+                            };
+                        @endphp
+                        <article class="event-card card border-0 shadow-sm rounded-4" style="--event-color: {{ $eventColor }}; --event-soft: {{ $eventSoft }}; --event-dark: {{ $eventDark }};">
+                            <div class="card-header bg-white border-0 p-4 pb-2"><h3 class="h4 fw-bold mb-0 d-flex align-items-center gap-3"><span class="event-icon">{{ $eventIcon }}</span><span>{{ $event['sport']->name }} <span class="event-category badge fs-6">{{ $event['category'] }}</span></span></h3></div>
                             <div class="card-body p-4">
                                 @if ($event['type'] === 'bowling')
                                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
