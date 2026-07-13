@@ -1,15 +1,18 @@
 <x-layouts.app :title="'Boling | Sukan BTMKN'">
     @php($bowlingSport = $sports->first())
 
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-        <div>
-            <div class="text-uppercase fw-bold text-primary small mb-2" style="letter-spacing: .12em;">Acara Boling</div>
-            <h1 class="h2 fw-bold mb-1">Skor Dua Game</h1>
-            <p class="text-secondary mb-0">Simpan skor Game 1 dahulu, kemudian kemas kini Game 2 apabila selesai.</p>
+    <div class="rounded-5 p-4 p-lg-5 text-white mb-4 overflow-hidden position-relative" data-event-hero="true" style="background: linear-gradient(135deg, #083344, #0891b2); box-shadow: 0 1.5rem 3rem rgba(8, 145, 178, .2);">
+        <div class="position-absolute rounded-circle border border-5 border-white border-opacity-10" style="width: 12rem; height: 12rem; right: -4rem; top: -5rem;"></div>
+        <div class="position-relative d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <div class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: .14em;">Boling Dua Game</div>
+                <h1 class="display-6 fw-bold mb-2">Skor Bowling</h1>
+                <p class="text-white-50 mb-0">Simpan skor Game 1 dahulu, kemudian kemas kini Game 2 apabila selesai.</p>
+            </div>
+            <span class="badge {{ $isComplete ? 'text-bg-success' : 'text-bg-warning' }} px-3 py-2">
+                {{ $playerTotals->filter(fn ($row) => $row['game_1'] !== null && $row['game_2'] !== null)->count() }} / {{ $playerTotals->count() }} pemain lengkap
+            </span>
         </div>
-        <span class="badge {{ $isComplete ? 'text-bg-success' : 'text-bg-warning' }} px-3 py-2">
-            {{ $playerTotals->filter(fn ($row) => $row['game_1'] !== null && $row['game_2'] !== null)->count() }} / {{ $playerTotals->count() }} pemain lengkap
-        </span>
     </div>
 
     @if (session('success'))

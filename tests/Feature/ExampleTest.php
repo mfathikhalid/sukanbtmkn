@@ -34,6 +34,8 @@ class ExampleTest extends TestCase
 
         $response
             ->assertOk()
+            ->assertSee('data-login-theme="carnival"', false)
+            ->assertSee('Log Masuk ke Dashboard')
             ->assertSee('action="https://sukan.example.com/login"', false);
     }
 

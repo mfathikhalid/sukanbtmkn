@@ -1,8 +1,11 @@
 <x-layouts.app :title="'Dart 501 | Sukan BTMKN'">
-    <div class="rounded-5 p-4 p-lg-5 text-white mb-4" style="background: linear-gradient(135deg, #052e16, #15803d);">
-        <div class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: .14em;">Dart Berpasukan</div>
-        <h1 class="display-6 fw-bold mb-2">Dart 501</h1>
-        <p class="text-white-50 mb-0">Tiga peserta bermain sebagai satu pasukan rumah dalam satu permainan 501. Pilih rumah pemenang selepas permainan selesai.</p>
+    <div class="rounded-5 p-4 p-lg-5 text-white mb-4 overflow-hidden position-relative" data-event-hero="true" style="background: linear-gradient(135deg, #052e16, #15803d); box-shadow: 0 1.5rem 3rem rgba(21, 128, 61, .2);">
+        <div class="position-absolute rounded-circle border border-5 border-white border-opacity-10" style="width: 12rem; height: 12rem; right: -4rem; top: -5rem;"></div>
+        <div class="position-relative">
+            <div class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: .14em;">Dart Berpasukan</div>
+            <h1 class="display-6 fw-bold mb-2">Dart 501</h1>
+            <p class="text-white-50 mb-0">Tiga peserta bermain sebagai satu pasukan rumah dalam satu permainan 501. Pilih rumah pemenang selepas permainan selesai.</p>
+        </div>
     </div>
 
     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif

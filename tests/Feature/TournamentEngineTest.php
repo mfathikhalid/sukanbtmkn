@@ -151,6 +151,8 @@ class TournamentEngineTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('FIFA')
+            ->assertSee('E-Sukan FIFA')
+            ->assertSee('data-event-hero="true"', false)
             ->assertSee('Round Robin')
             ->assertSee('Separuh Akhir 1')
             ->assertSee('Tempat Ketiga');

@@ -1,9 +1,21 @@
 <x-layouts.app :title="($selectedSport?->name ?? 'Acara').' | Sukan BTMKN'">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-        <div>
-            <div class="text-uppercase fw-bold text-primary small mb-2" style="letter-spacing: .12em;">Acara {{ $selectedSport?->name }}</div>
-            <h1 class="h2 fw-bold mb-1">{{ $selectedSport?->name }} — Round Robin & Knockout</h1>
-            <p class="text-secondary mb-0">Urus keseluruhan pertandingan {{ $selectedSport?->name }} mengikut kategori.</p>
+    @php
+        [$eventLabel, $eventGradient, $eventDescription] = match ($selectedSport?->name) {
+            'FIFA' => ['E-Sukan FIFA', 'linear-gradient(135deg, #172554, #2563eb)', 'Urus pertandingan FIFA daripada Round Robin hingga penentuan kedudukan akhir.'],
+            'Tekken' => ['E-Sukan Tekken', 'linear-gradient(135deg, #3b0764, #9333ea)', 'Urus pertandingan Tekken daripada Round Robin hingga penentuan kedudukan akhir.'],
+            'Congkak' => ['Permainan Tradisional', 'linear-gradient(135deg, #7c2d12, #ea580c)', 'Urus pertandingan Congkak antara rumah mengikut kategori peserta.'],
+            'Carrom' => ['Permainan Dalaman', 'linear-gradient(135deg, #312e81, #7c3aed)', 'Urus pertandingan Carrom daripada Round Robin hingga penentuan juara.'],
+            'Pickleball' => ['Sukan Berpasukan', 'linear-gradient(135deg, #064e3b, #16a34a)', 'Urus pertandingan Pickleball antara rumah mengikut kategori peserta.'],
+            default => ['Acara Karnival', 'linear-gradient(135deg, #0f172a, #2563eb)', 'Urus keseluruhan pertandingan daripada Round Robin hingga penentuan kedudukan akhir.'],
+        };
+    @endphp
+
+    <div class="rounded-5 p-4 p-lg-5 text-white mb-4 overflow-hidden position-relative" data-event-hero="true" style="background: {{ $eventGradient }}; box-shadow: 0 1.5rem 3rem rgba(15, 23, 42, .18);">
+        <div class="position-absolute rounded-circle border border-5 border-white border-opacity-10" style="width: 12rem; height: 12rem; right: -4rem; top: -5rem;"></div>
+        <div class="position-relative">
+            <div class="text-uppercase fw-bold text-warning small mb-2" style="letter-spacing: .14em;">{{ $eventLabel }}</div>
+            <h1 class="display-6 fw-bold mb-2">{{ $selectedSport?->name }}</h1>
+            <p class="text-white-50 mb-0">{{ $eventDescription }}</p>
         </div>
     </div>
 
