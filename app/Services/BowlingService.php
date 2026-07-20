@@ -88,14 +88,19 @@ class BowlingService
         return Participant::query()
             ->with(['house', 'bowlingScores'])
             ->whereHas('sports', fn ($query) => $query->where('type', 'bowling'))
-            ->orderBy('name')
             ->get()
             ->map(fn (Participant $participant) => [
                 'participant' => $participant,
                 'game_1' => $participant->bowlingScores->firstWhere('game_number', 1)?->score,
                 'game_2' => $participant->bowlingScores->firstWhere('game_number', 2)?->score,
                 'total' => $participant->bowlingScores->sum('score'),
-            ]);
+            ])
+            ->sortBy(fn (array $row) => implode('|', [
+                mb_strtolower($row['participant']->house?->name ?? ''),
+                $row['participant']->gender?->value === 'Male' ? '0' : '1',
+                mb_strtolower($row['participant']->name),
+            ]), SORT_NATURAL)
+            ->values();
     }
 
     public function isComplete(): bool

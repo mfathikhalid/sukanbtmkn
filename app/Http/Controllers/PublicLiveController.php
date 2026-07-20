@@ -61,7 +61,7 @@ class PublicLiveController extends Controller
                 'type' => 'bowling',
                 'sport' => $bowlingSport,
                 'category' => 'Keseluruhan',
-                'playerTotals' => $this->bowlingService->playerTotals()->sortByDesc('total')->values(),
+                'playerTotals' => $this->bowlingService->playerTotals(),
                 'houseTotals' => $this->bowlingService->houseTotals(),
                 'complete' => $bowlingStatus === 'complete',
                 'status' => $bowlingStatus,

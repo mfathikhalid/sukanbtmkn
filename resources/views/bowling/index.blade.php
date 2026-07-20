@@ -1,5 +1,7 @@
 <x-layouts.app :title="'Boling | Sukan BTMKN'">
-    @php($bowlingSport = $sports->first())
+    @php
+        $bowlingSport = $sports->first();
+    @endphp
 
     <div class="rounded-5 p-4 p-lg-5 text-white mb-4 overflow-hidden position-relative" data-event-hero="true" style="background: linear-gradient(135deg, #083344, #0891b2); box-shadow: 0 1.5rem 3rem rgba(8, 145, 178, .2);">
         <div class="position-absolute rounded-circle border border-5 border-white border-opacity-10" style="width: 12rem; height: 12rem; right: -4rem; top: -5rem;"></div>
@@ -46,7 +48,25 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $currentBowlingGroup = null;
+                    @endphp
                     @forelse ($playerTotals as $row)
+                        @php
+                            $bowlingGender = $row['participant']->gender?->value;
+                            $bowlingGenderLabel = $bowlingGender === 'Male' ? 'Lelaki' : 'Perempuan';
+                            $bowlingGroup = ($row['participant']->house_id ?? 'tiada').'-'.$bowlingGender;
+                        @endphp
+                        @if ($currentBowlingGroup !== $bowlingGroup)
+                            <tr class="table-info">
+                                <th colspan="6" class="ps-4 py-2">
+                                    Rumah {{ $row['participant']->house?->name ?? 'Tanpa Rumah' }} — {{ $bowlingGenderLabel }}
+                                </th>
+                            </tr>
+                            @php
+                                $currentBowlingGroup = $bowlingGroup;
+                            @endphp
+                        @endif
                         <tr>
                             <td class="ps-4 fw-semibold">{{ $row['participant']->name }}</td>
                             <td>
@@ -89,7 +109,9 @@
             <h2 class="h4 fw-bold mb-3">Jumlah Jatuhan Pin Rumah</h2>
             <div class="row g-3">
                 @forelse ($houseTotals as $houseId => $total)
-                    @php($house = $playerTotals->pluck('participant.house')->firstWhere('id', $houseId))
+                    @php
+                        $house = $playerTotals->pluck('participant.house')->firstWhere('id', $houseId);
+                    @endphp
                     <div class="col-sm-6 col-lg-3">
                         <div class="border rounded-4 p-3 h-100">
                             <div class="d-flex align-items-center gap-2 text-secondary mb-2">

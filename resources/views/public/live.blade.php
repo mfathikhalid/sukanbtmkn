@@ -149,7 +149,9 @@
                                             <h4 class="h6 fw-bold mb-3">Jumlah Pin Rumah</h4>
                                             <div class="d-grid gap-2">
                                                 @forelse ($event['houseTotals'] as $houseId => $total)
-                                                    @php($house = $event['playerTotals']->pluck('participant.house')->firstWhere('id', $houseId))
+                                                    @php
+                                                        $house = $event['playerTotals']->pluck('participant.house')->firstWhere('id', $houseId);
+                                                    @endphp
                                                     <div class="d-flex align-items-center gap-2 border rounded-3 p-3">
                                                         <span class="rounded-circle border" style="width: .8rem; height: .8rem; background: {{ $house?->color }}"></span>
                                                         <span class="fw-semibold flex-grow-1">Rumah {{ $house?->name }}</span>
@@ -166,8 +168,29 @@
                                                 <table class="table table-sm align-middle mb-0">
                                                     <thead class="table-light"><tr><th>#</th><th>Pemain</th><th>Rumah</th><th class="text-center">Game 1</th><th class="text-center">Game 2</th><th class="text-end">Jumlah</th></tr></thead>
                                                     <tbody>
+                                                        @php
+                                                            $currentBowlingGroup = null;
+                                                            $bowlingGroupNumber = 0;
+                                                        @endphp
                                                         @forelse ($event['playerTotals'] as $index => $row)
-                                                            <tr><td>{{ $index + 1 }}</td><td class="fw-semibold">{{ $row['participant']->name }}</td><td>{{ $row['participant']->house?->name }}</td><td class="text-center">{{ $row['game_1'] ?? '—' }}</td><td class="text-center">{{ $row['game_2'] ?? '—' }}</td><td class="text-end fw-bold">{{ number_format($row['total']) }}</td></tr>
+                                                            @php
+                                                                $bowlingGender = $row['participant']->gender?->value;
+                                                                $bowlingGenderLabel = $bowlingGender === 'Male' ? 'Lelaki' : 'Perempuan';
+                                                                $bowlingGroup = ($row['participant']->house_id ?? 'tiada').'-'.$bowlingGender;
+                                                            @endphp
+                                                            @if ($currentBowlingGroup !== $bowlingGroup)
+                                                                @php
+                                                                    $bowlingGroupNumber = 0;
+                                                                @endphp
+                                                                <tr class="table-info"><th colspan="6">Rumah {{ $row['participant']->house?->name ?? 'Tanpa Rumah' }} — {{ $bowlingGenderLabel }}</th></tr>
+                                                                @php
+                                                                    $currentBowlingGroup = $bowlingGroup;
+                                                                @endphp
+                                                            @endif
+                                                            @php
+                                                                $bowlingGroupNumber++;
+                                                            @endphp
+                                                            <tr><td>{{ $bowlingGroupNumber }}</td><td class="fw-semibold">{{ $row['participant']->name }}</td><td>{{ $row['participant']->house?->name }}</td><td class="text-center">{{ $row['game_1'] ?? '—' }}</td><td class="text-center">{{ $row['game_2'] ?? '—' }}</td><td class="text-end fw-bold">{{ number_format($row['total']) }}</td></tr>
                                                         @empty
                                                             <tr><td colspan="6" class="text-center text-secondary py-4">Tiada peserta boling berdaftar.</td></tr>
                                                         @endforelse
@@ -177,7 +200,9 @@
                                         </div>
                                     </div>
                                 @else
-                                    @php($eventKey = $event['sport']->id.'-'.strtolower($event['gender']->value))
+                                    @php
+                                        $eventKey = $event['sport']->id.'-'.strtolower($event['gender']->value);
+                                    @endphp
                                 <div class="accordion mb-4" id="round-robin-{{ $eventKey }}">
                                     <div class="accordion-item rounded-4 overflow-hidden border">
                                         <h4 class="accordion-header">

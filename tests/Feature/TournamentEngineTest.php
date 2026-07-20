@@ -415,6 +415,43 @@ class TournamentEngineTest extends TestCase
         $this->assertSame('complete', $bowling->status());
     }
 
+    public function test_bowling_players_are_grouped_by_house_and_gender_on_admin_and_public_views(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+        $sport = Sport::query()->where('name', 'Bowling')->firstOrFail();
+        $houses = House::query()->whereIn('name', ['Biru', 'Merah'])->get()->keyBy('name');
+
+        foreach ([
+            ['Biru', Gender::Female, 'Zara Biru'],
+            ['Merah', Gender::Male, 'Adam Merah'],
+            ['Biru', Gender::Male, 'Ali Biru'],
+            ['Merah', Gender::Female, 'Aina Merah'],
+        ] as $index => [$houseName, $gender, $name]) {
+            $participant = Participant::query()->create([
+                'house_id' => $houses[$houseName]->id,
+                'employee_no' => 'BOWL-GROUP-'.$index,
+                'name' => $name,
+                'gender' => $gender,
+            ]);
+            $participant->sports()->attach($sport);
+        }
+
+        $expectedOrder = ['Ali Biru', 'Zara Biru', 'Adam Merah', 'Aina Merah'];
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('bowling.index'))
+            ->assertOk()
+            ->assertSeeInOrder($expectedOrder)
+            ->assertSee('Rumah Biru — Lelaki')
+            ->assertSee('Rumah Biru — Perempuan');
+
+        $this->get(route('live.index'))
+            ->assertOk()
+            ->assertSeeInOrder($expectedOrder)
+            ->assertSee('Rumah Merah — Lelaki')
+            ->assertSee('Rumah Merah — Perempuan');
+    }
+
     public function test_an_admin_can_reset_only_bowling_scores(): void
     {
         $this->seed(DatabaseSeeder::class);
